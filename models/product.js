@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
 
-const schema = new mongoose.schema({});
+const schema = mongoose.Schema({});
 
-export const Product = mongoose.model("Product", schema);
+export const Product = new mongoose.model("Product", schema);

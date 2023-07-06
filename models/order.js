@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
 
-const schema = new mongoose.schema({});
+const schema = mongoose.Schema({});
 
 export const Order = mongoose.model("Order", schema);

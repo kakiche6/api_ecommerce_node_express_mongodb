@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
 
-const schema = new mongoose.schema({
+const schema = mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please enter name"],
@@ -47,4 +47,4 @@ const schema = new mongoose.schema({
   otp_expire: Date,
 });
 
-export const User = mongoose.model("User", schema);
+export const User = new mongoose.model("User", schema);
