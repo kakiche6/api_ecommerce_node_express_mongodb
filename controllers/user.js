@@ -42,3 +42,7 @@ export const signup = asyncError(async (req, res) => {
 
   sendToken(user, res, `Registered successfully`, 201);
 });
+
+export const getMyProfile = asyncError(async (req, res, next) => {
+  res.send("working...");
+});
