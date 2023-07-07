@@ -1,7 +1,8 @@
 import { asyncError } from "../middlewares/error.js";
 import { User } from "../models/user.js";
 import ErrorHandler from "../utils/error.js";
-import { cookieOptions, sendToken } from "../utils/features.js";
+import { cookieOptions, getDataUri, sendToken } from "../utils/features.js";
+import cloudinary from "cloudinary";
 
 export const login = asyncError(async (req, res, next) => {
   const { email, password } = req.body;
@@ -36,7 +37,21 @@ export const signup = asyncError(async (req, res) => {
 
   if (user) return next(new ErrorHandler("User already exists", 400));
 
+  let avatar = undefined;
+
+  if (req.file) {
+    const file = getDataUri(req.file);
+
+    const myCloud = await cloudinary.v2.uploader.upload(file.content);
+
+    avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    };
+  }
+
   user = await User.create({
+    avatar,
     name,
     email,
     password,
@@ -44,6 +59,7 @@ export const signup = asyncError(async (req, res) => {
     city,
     country,
     pinCode,
+    avatar: {},
   });
 
   sendToken(user, res, `Registered successfully`, 201);
@@ -119,3 +135,5 @@ export const changePassword = asyncError(async (req, res, next) => {
     message: "Password changed successfully",
   });
 });
+
+export const updatePic = asyncError(async (req, res, next) => {});
