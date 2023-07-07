@@ -1,6 +1,7 @@
 import { asyncError } from "../middlewares/error.js";
 import { User } from "../models/user.js";
 import ErrorHandler from "../utils/error.js";
+import { sendToken } from "../utils/features.js";
 
 export const login = asyncError(async (req, res, next) => {
   const { email, password } = req.body;
@@ -19,16 +20,17 @@ export const login = asyncError(async (req, res, next) => {
       .json({ success: false, message: "Incorrect email/password" });
   }
 
-  res.status(200).json({
-    success: true,
-    message: `Welcome Back, ${user.name}`,
-  });
+  sendToken(user, res, `Welcome Back, ${user.name}`, 200);
 });
 
 export const signup = asyncError(async (req, res) => {
   const { name, email, password, address, city, country, pinCode } = req.body;
 
-  const user = await User.create({
+  let user = await User.findOne({ email });
+
+  if (user) return next(new ErrorHandler("User already exists", 400));
+
+  user = await User.create({
     name,
     email,
     password,
@@ -38,9 +40,5 @@ export const signup = asyncError(async (req, res) => {
     pinCode,
   });
 
-  res.status(201).json({
-    success: true,
-    message: "Registered successfully",
-    user,
-  });
+  sendToken(user, res, `Registered successfully`, 201);
 });
