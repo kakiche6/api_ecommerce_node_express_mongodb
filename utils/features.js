@@ -4,6 +4,7 @@ export const sendToken = (user, res, message, statusCode) => {
   res
     .status(statusCode)
     .cookie("token", token, {
+      ...cookieOptions,
       expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
     })
     .json({
@@ -11,4 +12,10 @@ export const sendToken = (user, res, message, statusCode) => {
       message: message,
       token,
     });
+};
+
+const cookieOptions = {
+  secure: process.env.NODE_ENV === "development" ? false : true,
+  httpOnly: process.env.NODE_ENV === "development" ? false : true,
+  sameSite: process.env.NODE_ENV === "development" ? false : "none",
 };
