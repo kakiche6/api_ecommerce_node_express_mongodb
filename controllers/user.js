@@ -44,5 +44,10 @@ export const signup = asyncError(async (req, res) => {
 });
 
 export const getMyProfile = asyncError(async (req, res, next) => {
-  res.send("working...");
+  const user = await User.findById(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
 });
