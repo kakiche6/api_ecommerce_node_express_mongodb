@@ -157,3 +157,39 @@ export const updatePic = asyncError(async (req, res, next) => {
     message: "Image updated successfully",
   });
 });
+
+export const forgetPassword = asyncError(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) return next(new ErrorHandler("Field email required", 404));
+
+  const user = await User.findOne({ email });
+
+  if (!user) return next(new ErrorHandler("Incorrect Email", 404));
+
+  const randomNumber = Math.random() * (999999 - 1000) + 100000;
+
+  const otp = Math.floor(randomNumber);
+  const otp_expire = 15 * 60 * 1000;
+
+  user.otp = otp;
+  user.otp_expire = new Date(Date.now() + otp_expire);
+
+  await user.save();
+
+  // Send email
+
+  res.status(200).json({
+    success: true,
+    message: `Email send successfully to ${user.email}`,
+  });
+});
+
+export const resetPassword = asyncError(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
