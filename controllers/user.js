@@ -202,10 +202,29 @@ export const forgetPassword = asyncError(async (req, res, next) => {
 });
 
 export const resetPassword = asyncError(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const { otp, password } = req.body;
+
+  const user = await User.findOne({
+    otp,
+    otp_expire: {
+      $gt: Date.now(),
+    },
+  });
+
+  if (!user)
+    return next(new ErrorHandler("Incorrect OTP or has been expired", 400));
+
+  if (!password)
+    return next(new ErrorHandler("Please enter nex password", 400));
+
+  user.password = password;
+  user.otp = undefined;
+  user.otp_expire = undefined;
+
+  await user.save();
 
   res.status(200).json({
     success: true,
-    user,
+    message: "Password changed successfully",
   });
 });
