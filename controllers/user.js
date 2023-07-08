@@ -1,7 +1,12 @@
 import { asyncError } from "../middlewares/error.js";
 import { User } from "../models/user.js";
 import ErrorHandler from "../utils/error.js";
-import { cookieOptions, getDataUri, sendToken } from "../utils/features.js";
+import {
+  cookieOptions,
+  getDataUri,
+  sendEmail,
+  sendToken,
+} from "../utils/features.js";
 import cloudinary from "cloudinary";
 
 export const login = asyncError(async (req, res, next) => {
@@ -177,11 +182,22 @@ export const forgetPassword = asyncError(async (req, res, next) => {
 
   await user.save();
 
+  const message = `Your OTP for Reseting password is ${otp}.\n Please ignore if you have not requested this`;
+
+  try {
+    await sendEmail("OTP for resetting password", user.email, message);
+  } catch (error) {
+    user.otp = null;
+    user.otp_expire = null;
+    await user.save();
+    return next(error);
+  }
+
   // Send email
 
   res.status(200).json({
     success: true,
-    message: `Email send successfully to ${user.email}`,
+    message: `Email send successfully to ${email}`,
   });
 });
 
