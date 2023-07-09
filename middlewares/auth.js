@@ -14,3 +14,12 @@ export const isAuthenticated = asyncError(async (req, res, next) => {
 
   next();
 });
+
+export const isAdmin = asyncError(async (req, res, next) => {
+  if (req.user.role !== "admin")
+    return next(
+      new ErrorHandler("Only admin is authorized to perform this task", 401)
+    );
+
+  next();
+});
