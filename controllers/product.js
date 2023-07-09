@@ -6,7 +6,15 @@ import { getDataUri } from "../utils/features.js";
 import cloudinary from "cloudinary";
 
 export const getAllProducts = asyncError(async (req, res) => {
-  const products = await Product.find({});
+  const { keyword, category } = req.query;
+
+  const products = await Product.find({
+    name: {
+      $regex: keyword ? keyword : "",
+      $options: "i",
+    },
+    category: category ? category : undefined,
+  });
 
   res.status(200).json({
     success: true,
@@ -15,7 +23,7 @@ export const getAllProducts = asyncError(async (req, res) => {
 });
 
 export const getAdminProducts = asyncError(async (req, res) => {
-  const products = await Product.find({});
+  const products = await Product.find({}).populate("category");
 
   res.status(200).json({
     success: true,
@@ -24,7 +32,7 @@ export const getAdminProducts = asyncError(async (req, res) => {
 });
 
 export const getProductDetails = asyncError(async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).populate("category");
 
   if (!product) return next(new ErrorHandler("Product not found", 404));
 
